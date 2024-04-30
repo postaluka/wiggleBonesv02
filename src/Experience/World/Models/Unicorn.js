@@ -5,6 +5,7 @@ import { WiggleRigHelper } from "../../Utils/wiggle/WiggleRigHelper";
 
 import Experience from "../../Experience"
 import Loaders from "../../Utils/Loaders"
+import { log } from "three/examples/jsm/nodes/Nodes.js";
 
 
 export default class Unicorn
@@ -14,6 +15,8 @@ export default class Unicorn
 
         this.experience = new Experience()
         this.controls = this.experience.camera.controls
+        this.mouse = this.experience.mouse
+        this.sizes = this.experience.sizes
 
         this.materials = this.experience.materials
         this.loaders = new Loaders()
@@ -22,6 +25,16 @@ export default class Unicorn
 
         // Add rig piullow
         this.setUnicorn()
+
+        this.ix = null
+        this.iy = null
+        this.iz = null
+
+        this.vy = 0
+        this.ay = 0
+
+
+        // this.addEvents()
 
         this.wigglePARAMS = {}
         this.wigglePARAMS.velocity = 0.15
@@ -35,27 +48,55 @@ export default class Unicorn
 
     }
 
+    addEvents()
+    {
+        const onMouseDown = (event) =>
+        {
+            window.addEventListener('mousemove', onMouseMove)
+            window.addEventListener('mouseup', onMouseUp)
+        }
+
+        window.addEventListener('mousedown', onMouseDown)
+
+        const onMouseMove = (event) =>
+        {
+            // Calculate mouse position in the range of -1 to 1
+            const mouseX = event.clientX / window.innerWidth * 2 - 1;
+            const mouseY = - (event.clientY / window.innerHeight * 2 - 1);
+
+            this.mouse.x = mouseX
+            this.mouse.y = mouseY
+
+            // Map mouse position from -1 to 1 to 0 to 1
+            // this.mouse.x = (mouseX + 1) / 2;
+            // this.mouse.y = (mouseY + 1) / 2;
+
+            // Log the mapped mouse position
+            // console.log(this.mouse.x.toFixed(2), this.mouse.y.toFixed(2));
+        }
+
+        const onMouseUp = () =>
+        {
+            console.log('up');
+            window.removeEventListener('mousemove', onMouseMove)
+            window.removeEventListener('mouseup', onMouseUp)
+
+            this.mouse.x = 9999
+            this.mouse.y = 9999
+        }
+    }
+
 
     setUnicorn()
     {
         this.loaders.gltf.load(
-            '/3D/unicorn_01.gltf',
+            '/3D/unicorn_07.gltf',
             (gltf) => 
             {
                 this.instance.add(gltf.scene)
                 gltf.scene.position.y = 0
 
                 this.addShadows(gltf)
-
-                // console.log(gltf.scene.children[0])
-                // console.log('Joint1', gltf.scene.children[0].children[1].children[0])
-                // console.log('Joint2', gltf.scene.children[0].children[1].children[0].children[0])
-                // console.log('Joint3', gltf.scene.children[0].children[1].children[1])
-                // console.log('Joint4', gltf.scene.children[0].children[1].children[1].children[0])
-                // console.log('Joint5', gltf.scene.children[0].children[1].children[2])
-                // console.log('Joint6', gltf.scene.children[0].children[1].children[2].children[0])
-                // console.log('Joint7', gltf.scene.children[0].children[1].children[3])
-                // console.log('Joint8', gltf.scene.children[0].children[1].children[3].children[0])
 
                 this.root = gltf.scene.getObjectByName("Root")
 
@@ -70,8 +111,9 @@ export default class Unicorn
                 this.joint9 = gltf.scene.getObjectByName('Joint9')
                 this.joint10 = gltf.scene.getObjectByName('Joint10')
                 this.joint11 = gltf.scene.getObjectByName('Joint11')
-
-
+                this.joint12 = gltf.scene.getObjectByName('Joint12')
+                this.joint13 = gltf.scene.getObjectByName('Joint13')
+                this.joint14 = gltf.scene.getObjectByName('Joint14')
 
 
                 this.wiggleBones.push(new WiggleBone(this.joint1, { velocity: this.wigglePARAMS.velocity }))
@@ -85,10 +127,63 @@ export default class Unicorn
                 this.wiggleBones.push(new WiggleBone(this.joint9, { velocity: this.wigglePARAMS.velocity }))
                 this.wiggleBones.push(new WiggleBone(this.joint10, { velocity: this.wigglePARAMS.velocity }))
                 this.wiggleBones.push(new WiggleBone(this.joint11, { velocity: this.wigglePARAMS.velocity }))
+                this.wiggleBones.push(new WiggleBone(this.joint12, { velocity: this.wigglePARAMS.velocity }))
+                this.wiggleBones.push(new WiggleBone(this.joint13, { velocity: this.wigglePARAMS.velocity }))
+                this.wiggleBones.push(new WiggleBone(this.joint14, { velocity: this.wigglePARAMS.velocity }))
 
                 this.controls.attach(this.root)
+
+                this.ix = this.root.position.x
+                this.iy = this.root.position.y
+                this.iz = this.root.position.z
             }
         )
+    }
+
+    setVelocity()
+    {
+
+        if (this.root)
+        {
+
+            this.x = this.root.position.x
+            if (this.y > 0.5)
+            {
+                this.y = 0.5
+            }
+            else if (this.y < -1.5)
+            {
+                this.y = -1.5
+            }
+            else
+            {
+                this.y = this.root.position.y
+            }
+
+            this.z = this.root.position.z
+
+            // console.log(this.y);
+
+            this.deltax = this.ix - this.x
+            this.deltay = this.iy - this.y
+            this.deltaz = this.iz - this.z
+
+            if (this.deltax !== 0)
+            {
+                this.root.position.x += this.deltax * 0.05
+            }
+            if (this.deltay !== 0)
+            {
+                this.root.position.y += this.deltay * 0.05
+            }
+            if (this.deltaz !== 0)
+            {
+                this.root.position.z += this.deltaz * 0.05
+            }
+
+
+
+        }
     }
 
     debug()
@@ -106,28 +201,6 @@ export default class Unicorn
                 })
             })
 
-            // this.debug.ui.add(this.wigglePARAMS, 'stiffness', 10, 600, 1).name('stiffness').onChange((value) =>
-            // {
-            //     this.wiggleBones.forEach((wb) =>
-            //     {
-            //         this.wigglePARAMS.stiffness = value
-            //         wb.reset()
-            //         wb.options.stiffness = this.wigglePARAMS.stiffness
-            //         wb.update()
-
-            //     })
-            // })
-
-            // this.debug.ui.add(this.wigglePARAMS, 'damping', 5, 200, 1).name('damping').onChange((value) =>
-            // {
-            //     this.wiggleBones.forEach((wb) =>
-            //     {
-            //         this.wigglePARAMS.damping = value
-            //         wb.reset()
-            //         wb.options.damping = this.wigglePARAMS.damping
-            //         wb.update()
-            //     })
-            // })
         }
     }
 
@@ -137,6 +210,8 @@ export default class Unicorn
         {
             wb.update()
         })
+
+        this.setVelocity()
     }
 
     addShadows(gltf)

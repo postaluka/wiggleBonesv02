@@ -55,6 +55,11 @@ export default class Camera
 
         this.orbit = new OrbitControls(this.instance, this.canvas);
         this.orbit.update();
+        this.orbit.mouseButtons = {
+            LEFT: THREE.MOUSE.ROTATE,
+            MIDDLE: THREE.MOUSE.DOLLY,
+            RIGHT: null //THREE.MOUSE.PAN
+        }
 
         this.controls = new TransformControls(this.instance, this.canvas)
 

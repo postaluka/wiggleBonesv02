@@ -28,6 +28,7 @@ export default class Experience
         instance = this
 
         this.canvas = canvas
+        this.mouse = new THREE.Vector2(9999, 9999)
 
         this.manager = new Manager()
         this.debug = new Debug()
@@ -78,8 +79,6 @@ export default class Experience
     {
         this.camera.update()
         this.renderer.update()
-        this.world.cube.update()
-        this.world.pillow.update()
         this.world.unicorn.update()
     }
 }
