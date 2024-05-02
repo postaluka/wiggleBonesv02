@@ -8,6 +8,7 @@ import Lights from './Lights';
 import Cube from './Models/Cube';
 import Pillow from './Models/Pillow';
 import Unicorn from './Models/Unicorn';
+import Duck from './Models/Duck';
 import Floor from './Models/Floor';
 
 
@@ -28,6 +29,11 @@ export default class World
         this.pillow = new Pillow()
         this.floor = new Floor()
         this.unicorn = new Unicorn()
+        this.duck = new Duck()
+
+        // this.unicorn.instance.scale.set(1, 1, 1)
+        // this.duck.instance.position.set(10, 10, 10)
+
 
 
         // Add lights
@@ -39,11 +45,13 @@ export default class World
 
         // this.controls.attach(this.cube.instanceCube)
 
+
         // Add models
         this.scene.add(
             // this.cube.instance,
             // this.pillow.instance,
             this.unicorn.instance,
+            // this.duck.instance,
             // this.floor.instance,
             this.controls
         )
@@ -57,29 +65,36 @@ export default class World
     setDebug()
     {
         this.worldPARAMS = {}
-        this.worldPARAMS.cube = () =>
+
+        this.worldPARAMS.duck = () =>
         {
-            this.cube.instance.position.set(0, 0, 0)
-            // this.cube.instance.children[0].scale.set(0.8, 0.8, 0.8)
-            this.pillow.instance.scale.set(0, 0, 0)
 
-            this.controls.attach(this.cube.root)
 
+            this.scene.add(this.duck.instance)
+            this.scene.remove(this.unicorn.instance)
+
+
+            this.controls.attach(
+                this.duck.instance.getObjectByName("Root")
+            )
         }
-        this.worldPARAMS.pillow = () =>
+        this.worldPARAMS.unicorn = () =>
         {
-            // this.cube.instance.scale.set(0, 0, 0)
-            this.cube.instance.position.set(0, 100, 0)
-            this.pillow.instance.scale.set(1, 1, 1)
 
-            this.controls.attach(this.pillow.root)
+
+            this.scene.remove(this.duck.instance)
+            this.scene.add(this.unicorn.instance)
+
+            this.controls.attach(
+                this.unicorn.instance.getObjectByName("Root")
+            )
         }
 
         // Debug
         if (this.debug.active)
         {
-            // this.debug.ui.add(this.worldPARAMS, 'cube').name('addCube')
-            // this.debug.ui.add(this.worldPARAMS, 'pillow').name('addPillow')
+            this.debug.ui.add(this.worldPARAMS, 'unicorn').name('unicorn')
+            this.debug.ui.add(this.worldPARAMS, 'duck').name('duck')
 
         }
     }

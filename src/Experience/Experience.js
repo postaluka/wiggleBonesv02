@@ -43,8 +43,9 @@ export default class Experience
         this.renderer = new Renderer()
         this.world = new World()
 
-        this.axesHelper = new THREE.AxesHelper(5)
-        this.scene.add(this.axesHelper)
+        this.axesHelper = new THREE.AxesHelper(2)
+        this.gridHelper = new THREE.GridHelper(10, 10)
+        this.scene.add(this.axesHelper, this.gridHelper)
 
         this.setEnvMap()
 
@@ -80,6 +81,7 @@ export default class Experience
         this.camera.update()
         this.renderer.update()
         this.world.unicorn.update()
+        this.world.duck.update()
     }
 }
 

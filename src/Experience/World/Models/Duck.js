@@ -5,9 +5,10 @@ import { WiggleRigHelper } from "../../Utils/wiggle/WiggleRigHelper";
 
 import Experience from "../../Experience"
 import Loaders from "../../Utils/Loaders"
+import { log } from "three/examples/jsm/nodes/Nodes.js";
 
 
-export default class Unicorn
+export default class Duck
 {
     constructor()
     {
@@ -21,26 +22,22 @@ export default class Unicorn
         this.loaders = new Loaders()
 
         this.instance = new THREE.Group()
+        this.instance.name = 'duck'
+        // this.instance.position.set(10, 10, 10)
+
 
         // Add rig piullow
-        this.setUnicorn()
+        this.setDuck()
 
+        this.ix = null
+        this.iy = null
+        this.iz = null
 
-
-        // Velocity
-
-        this.addEvents()
-
-        this.vx = 0
         this.vy = 0
-        this.vz = 0
-
-        this.ax = 0
         this.ay = 0
-        this.az = 0
 
-        this.minDist = 50
 
+        // this.addEvents()
 
         this.wigglePARAMS = {}
         this.wigglePARAMS.velocity = 0.15
@@ -93,10 +90,10 @@ export default class Unicorn
     }
 
 
-    setUnicorn()
+    setDuck()
     {
         this.loaders.gltf.load(
-            '/3D/unicorn_03.gltf',
+            '/3D/duck_06.gltf',
             (gltf) => 
             {
                 this.instance.add(gltf.scene)
@@ -116,10 +113,9 @@ export default class Unicorn
                 this.joint8 = gltf.scene.getObjectByName('Joint8')
                 this.joint9 = gltf.scene.getObjectByName('Joint9')
                 this.joint10 = gltf.scene.getObjectByName('Joint10')
-                this.joint11 = gltf.scene.getObjectByName('Joint11')
-                this.joint12 = gltf.scene.getObjectByName('Joint12')
-                this.joint13 = gltf.scene.getObjectByName('Joint13')
-                this.joint14 = gltf.scene.getObjectByName('Joint14')
+                // this.joint11 = gltf.scene.getObjectByName('Joint11')
+                // this.joint12 = gltf.scene.getObjectByName('Joint12')
+
 
 
                 this.wiggleBones.push(new WiggleBone(this.joint1, { velocity: this.wigglePARAMS.velocity }))
@@ -132,54 +128,63 @@ export default class Unicorn
                 this.wiggleBones.push(new WiggleBone(this.joint8, { velocity: this.wigglePARAMS.velocity }))
                 this.wiggleBones.push(new WiggleBone(this.joint9, { velocity: this.wigglePARAMS.velocity }))
                 this.wiggleBones.push(new WiggleBone(this.joint10, { velocity: this.wigglePARAMS.velocity }))
-                this.wiggleBones.push(new WiggleBone(this.joint11, { velocity: this.wigglePARAMS.velocity }))
-                this.wiggleBones.push(new WiggleBone(this.joint12, { velocity: this.wigglePARAMS.velocity }))
-                this.wiggleBones.push(new WiggleBone(this.joint13, { velocity: this.wigglePARAMS.velocity }))
-                this.wiggleBones.push(new WiggleBone(this.joint14, { velocity: this.wigglePARAMS.velocity }))
+                // this.wiggleBones.push(new WiggleBone(this.joint11, { velocity: this.wigglePARAMS.velocity }))
+                // this.wiggleBones.push(new WiggleBone(this.joint12, { velocity: this.wigglePARAMS.velocity }))
 
-                this.controls.attach(this.root)
+
+                // this.controls.attach(this.root)
+
+                this.ix = this.root.position.x
+                this.iy = this.root.position.y
+                this.iz = this.root.position.z
+
             }
         )
     }
 
     setVelocity()
     {
-        let dx, dy, dd, distDelta
-
-        this.pullFactor = 0.00000005
-        this.pushFactor = 0.0000001
-
-
 
         if (this.root)
         {
 
-            // pull force
-            dx = this.root.position.x
-            dy = this.root.position.y
-
-            this.ax = dx * this.pullFactor
-            this.ay = dy * this.pullFactor
-
-            // push force 
-            dx = this.root.position.x - this.mouse.x
-            dy = this.root.position.y - this.mouse.y
-            dd = Math.sqrt(dx * dx + dy * dy)
-
-            distDelta = this.minDist - dd
-
-            if (dd < this.minDist)
+            this.x = this.root.position.x
+            if (this.y > 0.5)
             {
-                this.ax += (dx / dd) * distDelta * this.pushFactor
-                this.ay += (dy / dd) * distDelta * this.pushFactor
-
+                this.y = 0.5
+            }
+            else if (this.y < -1.5)
+            {
+                this.y = -1.5
+            }
+            else
+            {
+                this.y = this.root.position.y
             }
 
-            this.vx += this.ax
-            this.vy += this.ay
+            this.z = this.root.position.z
 
-            this.root.position.x += this.vx
-            this.root.position.y += this.vy
+            // console.log(this.y);
+
+            this.deltax = this.ix - this.x
+            this.deltay = this.iy - this.y
+            this.deltaz = this.iz - this.z
+
+            if (this.deltax !== 0)
+            {
+                this.root.position.x += this.deltax * 0.05
+            }
+            if (this.deltay !== 0)
+            {
+                this.root.position.y += this.deltay * 0.05
+            }
+            if (this.deltaz !== 0)
+            {
+                this.root.position.z += this.deltaz * 0.05
+            }
+
+
+
         }
     }
 
@@ -190,7 +195,7 @@ export default class Unicorn
         this.debug = this.experience.debug
         if (this.debug.active)
         {
-            this.debug.ui.add(this.wigglePARAMS, 'velocity', 0, 1, 0.001).name('velocityUnicorn').onChange((value) =>
+            this.debug.ui.add(this.wigglePARAMS, 'velocity', 0.05, 1, 0.01).name('velocityDuck').onChange((value) =>
             {
                 this.wiggleBones.forEach((wb) =>
                 {
@@ -208,7 +213,11 @@ export default class Unicorn
             wb.update()
         })
 
-        this.setVelocity()
+        if (this.status)
+        {
+            this.setVelocity()
+        }
+
     }
 
     addShadows(gltf)

@@ -131,7 +131,7 @@ export default class Unicorn
                 this.wiggleBones.push(new WiggleBone(this.joint13, { velocity: this.wigglePARAMS.velocity }))
                 this.wiggleBones.push(new WiggleBone(this.joint14, { velocity: this.wigglePARAMS.velocity }))
 
-                this.controls.attach(this.root)
+                // this.controls.attach(this.root)
 
                 this.ix = this.root.position.x
                 this.iy = this.root.position.y
@@ -193,7 +193,7 @@ export default class Unicorn
         this.debug = this.experience.debug
         if (this.debug.active)
         {
-            this.debug.ui.add(this.wigglePARAMS, 'velocity', 0, 1, 0.001).name('velocityUnicorn').onChange((value) =>
+            this.debug.ui.add(this.wigglePARAMS, 'velocity', 0.05, 1, 0.01).name('velocityUnicorn').onChange((value) =>
             {
                 this.wiggleBones.forEach((wb) =>
                 {
@@ -211,7 +211,10 @@ export default class Unicorn
             wb.update()
         })
 
-        this.setVelocity()
+        if (this.status)
+        {
+            this.setVelocity()
+        }
     }
 
     addShadows(gltf)
